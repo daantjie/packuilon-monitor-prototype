@@ -10,7 +10,7 @@ maintainer:          danieltheexperimenter@gmail.com
 copyright:           (c) Daniel Oosthuizen 2017
 category:            Web
 build-type:          Simple
-extra-source-files:  README.md
+extra-source-files:  README.org
 cabal-version:       >=1.10
 
 library
