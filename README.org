@@ -1,0 +1,52 @@
+#+title: Packuilon Monitor (Prototype)
+
+A (prototype) monitoring interface for the [[https://github.com/stfc/packuilon][Packuilon]] image-building scripts.
+
+* Background
+** Interfacing with builds
+   The current way in which the monitor interfaces with the builds is through logging.
+
+***  =/var/log/messages=
+    Many things irrelavent to this monitor are written to this log – so it's
+    important to filter through the cruft.
+
+    #+BEGIN_EXAMPLE
+    16:30:45 host /usr/sbin/cdp-listend[3580]: Received UDP packet (cdb|1486571445) from xx.xx.xx.xx
+    16:30:45 host /usr/sbin/cdp-listend[3580]: /usr/local/bin/cdb2rabbit.py will be called in 0 seconds
+    16:30:45 host /usr/sbin/cdp-listend[3580]: Calling /usr/local/bin/cdb2rabbit.py
+    16:30:45 host /cdb2rabbit.py: Starting
+    16:30:45 host /cdb2rabbit.py: CI profile rebuilt: image-factory-[...].json
+    16:30:45 host /cdb2rabbit.py: Downloading profile image-factory-[...].json
+    16:30:45 host /cdb2rabbit.py: Profile has updated: image-factory-[...].json
+    16:30:45 host /cdb2rabbit.py: Pushing message to queue for build
+    16:30:45 host /cdb2rabbit.py: Updating cached profile_info
+    16:30:45 host /cdb2rabbit.py: Exiting normally
+    16:30:45 host /rabbit2packer.py: Thread-2 processing image-factory-sl7x-x86_64
+    16:30:45 host /rabbit2packer.py: packer build starting, see image-factory-sl7x-x86_64.log for details
+    ...
+    16:34:36 host /rabbit2packer.py: Thread-2: image built successfully
+    16:34:38 host /rabbit2packer.py: Thread-2: reconnecting to channel
+    #+END_EXAMPLE
+
+    On vm318, =rabbit2packer= runs constantly, listening to the message queue.
+    When =cdb2rabbit=[fn:1] (started by the =cdp-listend= service) pushes
+    messages to the queue, =rabbit2packer= starts concurrent Packer builds on
+    the updated profiles built by Aquilon.
+
+    *NB:* log output from different Packer build threads is all mixed together,
+     so I'll need to separate out information which is for different builds.
+
+*** =/etc/packer-utils/log/=
+    Contains the logs for individual Packer builds. From the following line,
+
+    : 16:30:45 host /rabbit2packer.py: packer build starting, see image-factory-sl7x-x86_64.log for details
+
+    it looks like =/var/log/messages= will direct to particular logs – and it
+    wouldn't be too hard to follow this redirection.
+
+* Dependencies
+** Attoparsec
+   For parsing the logs.
+* Footnotes
+
+[fn:1] CDB stands for ‘configuration database’.
