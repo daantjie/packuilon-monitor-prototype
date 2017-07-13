@@ -5,11 +5,15 @@ module Packuilon.Monitor.Log
   ( filesInDir
   , file
   , logNameParser
+  , logParser
+  , parser
+  , parseOnly
   ) where
 
 import Control.Applicative
 import Control.Monad (filterM)
 import Control.Monad.IO.Class (MonadIO(..))
+import Control.Monad.Trans
 import qualified Data.Attoparsec.Text.Lazy as A
 import Data.Foldable (traverse_)
 import Data.Machine
@@ -50,13 +54,27 @@ file = construct go
       handleIO print yield (T.readFile f)
       go
 
+-- | Lazy version of @Data.Attoparsec.Text.parseOnly@.
+parseOnly :: A.Parser t -> Text -> Either String t
+parseOnly p = A.eitherResult . A.parse p
+
+-- | Machinify the parser -- XXX barfs on an error.
+parser :: MonadIO m => A.Parser t -> ProcessT m Text t
+parser p = loop go
+  where
+    go x = either (liftIO . putStrLn) yield $ parseOnly p x
+
+type EpochTime = Int
+
+type ExitCode = Int
+
 -- | Parse the name of a log file.
 -- | E.g.:
 -- |@
 -- λ> A.parseOnly logNameParser "inventory-sl6x.unmanaged.json.1499870992.log"
 -- Right ("inventory-sl6x.unmanaged",1499870992)
 -- |@
-logNameParser :: A.Parser (TS.Text, Int)
+logNameParser :: A.Parser (TS.Text, EpochTime)
 logNameParser = do
   personality <- tillDot
   "."
@@ -67,3 +85,14 @@ logNameParser = do
   return (personality <> "." <> managedStatus, timeStamp)
   where
     tillDot = A.takeWhile (/= '.')
+
+-- rabbit2packer: Build finished at 1499871318 (epoch) with exit code 0
+-- XXX Doesn't garbage collect properly
+logParser :: A.Parser (ExitCode, EpochTime)
+logParser =
+  do "rabbit2packer: Build finished at "
+     timeStamp <- A.decimal
+     " (epoch) with exit code "
+     exitCode <- A.decimal
+     return (exitCode, timeStamp)
+  <|> (A.anyChar >> logParser)
