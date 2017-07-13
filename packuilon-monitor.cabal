@@ -33,6 +33,8 @@ executable packuilon-monitor
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
                      , packuilon-monitor
+                     , machines
+                     , text
   default-language:    Haskell2010
 
 test-suite packuilon-monitor-test
