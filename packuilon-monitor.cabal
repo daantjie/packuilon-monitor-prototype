@@ -18,10 +18,12 @@ library
   exposed-modules:     Packuilon.Monitor.Log
   build-depends:       base >= 4.7 && < 5
                      , machines
+                     , concurrent-machines
                      , directory
                      , transformers
                      , text
                      , filepath
+                     , attoparsec
   default-language:    Haskell2010
 
 executable packuilon-monitor
