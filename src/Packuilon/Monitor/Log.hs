@@ -21,6 +21,12 @@ import qualified Data.Text.Lazy.IO as T
 handleIO :: MonadIO m => (IOError -> IO b) -> (a -> m b) -> IO a -> m b
 handleIO l r m = (liftIO . tryIOError $ m) >>= either (liftIO . l) r
 
+loop f = construct go where
+  go = do
+    x <- await <|> stop
+    f x
+    go
+
 -- | Streams out the @FilePath@s of all files in a directory.
 -- Doesn't do tilde expansion -- so "~/..." won't work properly.
 filesInDir :: MonadIO m => FilePath -> SourceT m FilePath
