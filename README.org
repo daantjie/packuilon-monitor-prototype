@@ -44,6 +44,13 @@ A (prototype) monitoring interface for the [[https://github.com/stfc/packuilon][
     it looks like =/var/log/messages= will direct to particular logs – and it
     wouldn't be too hard to follow this redirection.
 
+* Plan
+** TODO Process log files
+*** DONE Get all logs in a directory
+    CLOSED: [2017-07-13 Thu 16:40]
+*** DONE Open a log
+    CLOSED: [2017-07-13 Thu 16:40]
+*** NEXT Write a parser for the log files
 * Dependencies
 ** Attoparsec
    For parsing the logs.
