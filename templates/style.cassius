@@ -1,0 +1,6 @@
+.passed
+  color: green
+.failed
+  color: red
+.running
+  color: orange

@@ -16,6 +16,7 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:     Packuilon.Monitor.Log
+                     , Packuilon.Monitor.Generate
   build-depends:       base >= 4.7 && < 5
                      , machines
                      , concurrent-machines
@@ -25,6 +26,9 @@ library
                      , text
                      , filepath
                      , attoparsec
+                     , yesod
+                     , blaze-html
+                     , shakespeare
   default-language:    Haskell2010
 
 executable packuilon-monitor
@@ -35,6 +39,8 @@ executable packuilon-monitor
                      , packuilon-monitor
                      , machines
                      , text
+                     , yesod
+                     , shakespeare
   default-language:    Haskell2010
 
 test-suite packuilon-monitor-test
